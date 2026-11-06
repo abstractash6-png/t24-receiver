@@ -56,7 +56,35 @@ export default function App(){
     setStorageStatus('Export complete to your selected folder');
     await appendEvent('export_completed',{sampleCount:samplesRef.current.length});
   }catch(e:any){setStorageStatus(`Export failed: ${e.message}`);}};
- useEffect(()=>{let mounted=true;(async()=>{try{if(targetFile){const raw=await FileSystem.readAsStringAsync(targetFile);const saved=JSON.parse(raw);if(mounted){setTargetState(saved);setTargetStatus(saved.revealedAt?'Last target revealed':'A sealed target is waiting');}}}catch{}try{if(historyFile){const raw=await FileSystem.readAsStringAsync(historyFile);const saved=JSON.parse(raw);if(mounted&&Array.isArray(saved))setTrialHistory(saved);}}catch{}try{if(protocolFile){const raw=await FileSystem.readAsStringAsync(protocolFile);const saved=JSON.parse(raw);if(mounted){setProtocol(saved);setHypothesis(saved.hypothesis);setPlannedTrials(String(saved.plannedTrials));setProtocolStatus('Registered protocol loaded and locked');}}}catch{}try{if(eventFile){const raw=await FileSystem.readAsStringAsync(eventFile);const saved=JSON.parse(raw);if(Array.isArray(saved)){eventsRef.current=saved;lastHash.current=saved.length?saved[saved.length-1].hash:'GENESIS';if(mounted)setEvents(saved.slice(-8));}}}catch{}try{if(sampleFile){const raw=await FileSystem.readAsStringAsync(sampleFile);const saved=JSON.parse(raw);if(Array.isArray(saved)){samplesRef.current=saved;setSampleCount(saved.length);if(mounted)setSamples(saved.slice(-6));}}}catch{}if(mounted)await appendEvent('session_started',{sessionId:sessionId.current,appVersion:Application.nativeApplicationVersion,recoveredEvents:eventsRef.current.length,recoveredSamples:samplesRef.current.length});})();const timer=setInterval(()=>setTargetClock(Date.now()),1000);return()=>{mounted=false;clearInterval(timer);subs.current.forEach(x=>x?.remove?.());};},[]);
+  useEffect(()=>{
+    let mounted=true;
+    const restore=async()=>{
+      try{
+        const saved=JSON.parse(await FileSystem.readAsStringAsync(targetFile));
+        if(mounted){setTargetState(saved);setTargetStatus(saved.revealedAt?'Last target revealed':'A sealed target is waiting');}
+      }catch{}
+      try{
+        const saved=JSON.parse(await FileSystem.readAsStringAsync(historyFile));
+        if(mounted&&Array.isArray(saved))setTrialHistory(saved);
+      }catch{}
+      try{
+        const saved=JSON.parse(await FileSystem.readAsStringAsync(protocolFile));
+        if(mounted){setProtocol(saved);setHypothesis(saved.hypothesis);setPlannedTrials(String(saved.plannedTrials));setProtocolStatus('Registered protocol loaded and locked');}
+      }catch{}
+      try{
+        const saved=JSON.parse(await FileSystem.readAsStringAsync(eventFile));
+        if(Array.isArray(saved)){eventsRef.current=saved;lastHash.current=saved.length?saved[saved.length-1].hash:'GENESIS';if(mounted)setEvents(saved.slice(-8));}
+      }catch{}
+      try{
+        const saved=JSON.parse(await FileSystem.readAsStringAsync(sampleFile));
+        if(Array.isArray(saved)){samplesRef.current=saved;setSampleCount(saved.length);if(mounted)setSamples(saved.slice(-6));}
+      }catch{}
+      if(mounted)await appendEvent('session_started',{sessionId:sessionId.current,appVersion:Application.nativeApplicationVersion,recoveredEvents:eventsRef.current.length,recoveredSamples:samplesRef.current.length});
+    };
+    void restore();
+    const timer=setInterval(()=>setTargetClock(Date.now()),1000);
+    return()=>{mounted=false;clearInterval(timer);subs.current.forEach(x=>x?.remove?.());};
+  },[]);
  return <SafeAreaView style={s.safe}><StatusBar style="light"/><ScrollView contentContainerStyle={s.body}>
  <Text style={s.eyebrow}>T−24 RESEARCH RECEIVER · FIELD SUITE</Text><Text style={s.title}>Device Bridge</Text><Text style={s.sub}>A local-first research instrument for repeatable device measurements. Nothing uploads automatically. Permissions, sampling and exports are user-triggered.</Text>
  <Card title="Session overview"><Text style={s.line}>Session: {sessionId.current}</Text><Text style={s.muted}>Started {new Date(Date.now()-(monotonic()-sessionStart.current)).toISOString()}</Text><Text style={s.line}>{sampleCount.toLocaleString()} sensor samples · {eventsRef.current.length} logged events</Text><Text style={s.muted}>Wall clock and monotonic elapsed time are recorded separately. Neither is trusted time attestation.</Text></Card>
