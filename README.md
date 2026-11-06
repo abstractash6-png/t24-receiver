@@ -10,6 +10,11 @@ A local-first Android research instrument. This is source code, not a prebuilt A
 - Cryptographically random four-direction target selection with a 1-in-5 sham condition
 - SHA-256 commitment to target, condition, nonce and scheduled reveal time; in-app reveal is withheld for 24 hours
 - Post-delay commitment verification and export-safe withholding of unrevealed target details
+- Local protocol preregistration: hypothesis, planned trial count, fixed scoring rule and SHA-256 registration hash
+- Receiver response is locked to a sealed trial before reveal; target/sham outcome is scored after reveal
+- Exact two-sided binomial test against 25% chance and Wilson 95% confidence interval, plus sham false-alarm counts
+- Local recovery for protocol settings, pending target, completed trial history, event chain and periodic sensor batches
+- Sensor-gap diagnostics against the selected sampling interval
 - Receiver trial log that records a response before a later target reveal
 - Sensor sample export as CSV in addition to full JSON session export
 - Wall-clock and monotonic elapsed-time fields
@@ -64,6 +69,7 @@ npx expo start
 - Motion and location measurements are ordinary device sensor data, not evidence of communication through time.
 - The quantum benchmark is a classical simulation, not a QPU test or quantum hardware detector.
 - SHA-256 hash chaining can reveal changes to the recorded chain, but is not a hardware-backed signature and cannot prevent a privileged device owner from rewriting the entire file.
-- The built-in target generator and sham selection are a local experimental aid. They do not create independent sender/receiver isolation or prove the receiver was blind.
+- This release is a single-device research prototype. The target generator and receiver response log run on the same handset; they do not create independent sender/receiver isolation or prove the receiver was blind.
+- QR pairing, encrypted multi-device transfer, externally signed exports, and a replication dashboard are not included in this build.
 - The 24-hour reveal gate uses the handset's local wall clock. It is a user-interface delay, not trusted time enforcement; changing the device clock or app storage can defeat it.
 - The random target is stored locally by the app. A person with device-level access may inspect app storage. Do not use it as a security boundary or for high-stakes experiments.
