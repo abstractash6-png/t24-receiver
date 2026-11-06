@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "T-24 Receiver",
+    "slug": "t24-receiver",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "org.t24.receiver",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "versionCode": 2
+    },
+    "plugins": [
+      "expo-location",
+      "expo-document-picker"
+    ]
+  }
+}
